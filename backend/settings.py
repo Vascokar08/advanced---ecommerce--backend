@@ -1,7 +1,3 @@
-"""
-
-"""
-
 from pathlib import Path
 from datetime import timedelta
 from environs import Env
@@ -14,19 +10,17 @@ env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b*tuoe%^o+=^35$0fufrm=oamh^(o0tabn39(7ni12(i-oup+4'
+SECRET_KEY = env("SECRET_KEY", default='django-insecure-b*tuoe%^o+=^35$0fufrm=oamh^(o0tabn39(7ni12(i-oup+4')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ["multivendor-ecommerce-api.up.railway.app"]
-CSRF_TRUSTED_ORIGINS = ['https://multivendor-ecommerce-api.up.railway.app']
+DEBUG = env.bool("DEBUG", default=True)
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["multivendor-ecommerce-api.up.railway.app"])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=['https://multivendor-ecommerce-api.up.railway.app'])
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
-
 
 # Application definition
 
@@ -40,7 +34,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
 
     # Custom Apps
     'userauths',
@@ -57,13 +50,10 @@ INSTALLED_APPS = [
     'import_export',
     'anymail',
     'storages',
-
-
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # Add Cors Middle ware here
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -93,7 +83,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -104,10 +93,8 @@ DATABASES = {
     }
 }
 
-
 db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES['default'].update(db_from_env)
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -127,20 +114,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
-
-
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -148,8 +128,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -177,14 +155,16 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": env("MAILGUN_SENDER_DOMAIN"),
 }
 
-FROM_EMAIL = " shivamkorgaonkar2021@gmail.com"
+FROM_EMAIL = env("FROM_EMAIL", default="shivamkorgaonkar2021@gmail.com")
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = " shivamkorgaonkar2021@gmail.com"
-SERVER_EMAIL = " shivamkorgaonkar2021@gmail.com"
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="shivamkorgaonkar2021@gmail.com")
+SERVER_EMAIL = env("SERVER_EMAIL", default="shivamkorgaonkar2021@gmail.com")
 
 CORS_ALLOW_ALL_ORIGINS = True
- # AWS Configs
+
+# AWS Configs
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = 'public-read'
@@ -228,19 +208,17 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-
 JAZZMIN_SETTINGS = {
     "site_title": "cloudbazzar",
     "site_header": "cloudbazzar",
-    "site_brand": "Modern Marketplace ",
+    "site_brand": "Modern Marketplace",
     "site_icon": "images/favicon.ico",
     "site_logo": "images/logos/logo.jpg",
     "welcome_sign": "Welcome To cloudbazzar",
     "copyright": "cloudbazzar",
     "user_avatar": "images/photos/logo.jpg",
     "topmenu_links": [
-        {"name": "Dashboard", "url": "home",
-            "permissions": ["auth.view_user"]},
+        {"name": "Dashboard", "url": "home", "permissions": ["auth.view_user"]},
         {"model": "auth.User"},
     ],
     "show_sidebar": True,
@@ -284,7 +262,6 @@ JAZZMIN_SETTINGS = {
         "store.Tag": "fas fa-tag",
         "store.Wishlist": "fas fa-heart",
         "store.Notification": "fas fa-bell",
-
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-arrow-circle-right",
@@ -299,7 +276,6 @@ JAZZMIN_SETTINGS = {
         "auth.group": "vertical_tabs",
     },
 }
-
 
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
@@ -332,4 +308,3 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
-
