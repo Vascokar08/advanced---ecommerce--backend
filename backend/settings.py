@@ -1,7 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
 from environs import Env
-import os
 import dj_database_url
 
 env = Env()
@@ -14,16 +13,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY", default='django-insecure-b*tuoe%^o+=^35$0fufrm=oamh^(o0tabn39(7ni12(i-oup+4')
+SECRET_KEY = env("DJANGO_SECRET_KEY", default='django-insecure-b*tuoe%^o+=^35$0fufrm=oamh^(o0tabn39(7ni12(i-oup+4')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=True)
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["multivendor-ecommerce-api.up.railway.app"])
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=['https://multivendor-ecommerce-api.up.railway.app'])
+DEBUG = env.bool("DEBUG", default=false)
+
+ALLOWED_HOSTS = ["multivendor-ecommerce-api.up.railway.app"]
+
+CSRF_TRUSTED_ORIGINS = ['https://multivendor-ecommerce-api.up.railway.app']
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
 # Application definition
-
 INSTALLED_APPS = [
     'jazzmin',
     'drf_yasg',
@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Add Cors Middleware here
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,7 +85,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -98,7 +97,6 @@ DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -116,17 +114,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -157,8 +157,8 @@ ANYMAIL = {
 
 FROM_EMAIL = env("FROM_EMAIL", default="shivamkorgaonkar2021@gmail.com")
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="shivamkorgaonkar2021@gmail.com")
-SERVER_EMAIL = env("SERVER_EMAIL", default="shivamkorgaonkar2021@gmail.com")
+DEFAULT_FROM_EMAIL = FROM_EMAIL
+SERVER_EMAIL = FROM_EMAIL
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -182,27 +182,21 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
-
     'ALGORITHM': 'HS256',
-
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
     'JWK_URL': None,
     'LEEWAY': 0,
-
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
     'JTI_CLAIM': 'jti',
-
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
@@ -241,13 +235,10 @@ JAZZMIN_SETTINGS = {
     ],
     "icons": {
         "admin.LogEntry": "fas fa-file",
-
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
-
         "userauths.User": "fas fa-user",
         "userauths.Profile": "fas fa-address-card",
-
         "store.Product": "fas fa-th",
         "store.CartOrder": "fas fa-shopping-cart",
         "store.Cart": "fas fa-cart-plus",
@@ -266,10 +257,8 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-arrow-circle-right",
     "related_modal_active": False,
-
     "custom_js": None,
     "show_ui_builder": False,
-
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
         "auth.user": "collapsible",
@@ -305,6 +294,6 @@ JAZZMIN_UI_TWEAKS = {
         "info": "btn-info",
         "warning": "btn-warning",
         "danger": "btn-danger",
-        "success": "btn-success"
-    }
+        "success": "btn-success",
+    },
 }
