@@ -16,11 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("DJANGO_SECRET_KEY", default='django-insecure-b*tuoe%^o+=^35$0fufrm=oamh^(o0tabn39(7ni12(i-oup+4')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", default=false)
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["multivendor-ecommerce-api.up.railway.app"]
+ALLOWED_HOSTS = ["multivendor-ecommerce-api.up.railway.app", "your_custom_domain.com"]
 
-CSRF_TRUSTED_ORIGINS = ['https://multivendor-ecommerce-api.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://multivendor-ecommerce-api.up.railway.app', 'https://your_custom_domain.com']
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
 # Application definition
