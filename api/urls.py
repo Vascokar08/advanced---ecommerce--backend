@@ -41,12 +41,12 @@ urlpatterns = [
     path('coupon/', store_views.CouponApiView.as_view(), name='coupon'),
     path('create-review/', store_views.ReviewRatingAPIView.as_view(), name='create-review'),
     path('reviews/<product_id>/', store_views.ReviewListView.as_view(), name='create-review'),
+    path('reviews/<int:product_id>/summary/', store_views.SummaryReview.as_view(), name='review-summary'),
     path('search/', store_views.SearchProductsAPIView.as_view(), name='search'),
 
     # Payment
-      path('stripe-checkout/<order_oid>/', store_views.StripeCheckoutView.as_view(), name='stripe-checkout'),
+    path('stripe-checkout/<order_oid>/', store_views.StripeCheckoutView.as_view(), name='stripe-checkout'),
     path('payment-success/', store_views.PaymentSuccessView.as_view(), name='payment-success'),
-    
 
     # Customer API Endpoints
     path('customer/orders/<user_id>/', customer_views.OrdersAPIView.as_view(), name='customer-orders'),
@@ -91,5 +91,3 @@ urlpatterns = [
     path('vendor/order-item-detail/<int:pk>/', vendor_views.OrderItemDetailAPIView.as_view()),
 
     
-
-]
