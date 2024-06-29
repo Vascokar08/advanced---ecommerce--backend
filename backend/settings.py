@@ -150,15 +150,14 @@ REST_FRAMEWORK = {
     )
 }
 
-ANYMAIL = {
-    "MAILGUN_API_KEY": env("MAILGUN_API_KEY"),
-    "MAILGUN_SENDER_DOMAIN": env("MAILGUN_SENDER_DOMAIN"),
-}
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.mail.yahoo.com'
+EMAIL_PORT = 587  # Yahoo SMTP port
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'sampu.kerkar@yahoo.com'
+EMAIL_HOST_PASSWORD = 'S@mpu@kerkar'
+FROM_EMAIL= 'sampu.kerkar@yahoo.com'
 
-FROM_EMAIL = env("FROM_EMAIL", default="shivamkorgaonkar2021@gmail.com")
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = FROM_EMAIL
-SERVER_EMAIL = FROM_EMAIL
 
 CORS_ALLOW_ALL_ORIGINS = True
 
