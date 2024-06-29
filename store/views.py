@@ -31,12 +31,32 @@ from userauths.models import User
 from store.models import CancelledOrder, CartOrderItem, CouponUsers, Cart, Notification, Product, Tag ,Category, DeliveryCouriers, CartOrder, Gallery, Brand, ProductFaq, Review,  Specification, Coupon, Color, Size, Address, Wishlist
 from addon.models import ConfigSettings, Tax
 from vendor.models import Vendor
+from .serializers import ReviewSerializer
+from collections import Counter
+from nltk import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from collections import Counter
+import nltk
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.decomposition import LatentDirichletAllocation
 
+import nltk
 # Others Packages
 import json
 from decimal import Decimal
 import stripe
 import requests
+import logging
+import numpy as np  # Import numpy here
+import re
+import openai
+nltk.download('punkt')
+nltk.download('stopwords')
+
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 PAYPAL_CLIENT_ID = settings.PAYPAL_CLIENT_ID
@@ -481,7 +501,7 @@ class StripeCheckoutView(generics.CreateAPIView):
                 line_items=[
                     {
                         'price_data': {
-                            'currency': 'usd',
+                            'currency': 'inr',
                             'product_data': {
                                 'name': order.full_name,
                             },
@@ -651,7 +671,114 @@ class ReviewListView(generics.ListAPIView):
         product = Product.objects.get(id=product_id)
         reviews = Review.objects.filter(product=product)
         return reviews
+
+class SummaryReview(APIView):
+    permission_classes = (AllowAny, )
+    groq_api_url = 'https://api.groq.com/openai/v1/chat/completions'  # Replace with your Groq API endpoint
+    groq_api_key = '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'  # Replace with your actual Groq API key
+
+    def get_queryset(self):
+        product_id = self.kwargs['product_id']
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            logger.error(f"Product with id {product_id} does not exist.")
+            return None
+        reviews = Review.objects.filter(product=product)
+        return reviews
     
+    def get_review_texts(self):
+        """
+        Method to return a list of review texts for the given product_id.
+        """
+        queryset = self.get_queryset()
+        
+        if queryset is None:
+            return []
+        
+        # Extracting review text from each review in the queryset
+        review_texts = [review.review for review in queryset]
+        return review_texts
+    
+    def summarize_reviews(self):
+        """
+        Method to summarize reviews using Groq.
+        """
+        review_texts = self.get_review_texts()
+
+        if not review_texts:
+            return "No reviews available."
+
+        # Combine all review texts into a single string
+        all_text = ' '.join(review_texts)
+
+        # Split the text into sentences
+        sentences = sent_tokenize(all_text)
+
+        # Tokenize and filter stopwords for word analysis
+        words = word_tokenize(all_text)
+        stop_words = set(stopwords.words('english'))
+        filtered_words = [word for word in words if word.lower() not in stop_words]
+
+        # Count word frequencies
+        word_freq = Counter(filtered_words)
+
+        # Extract most common words or phrases (adjust as needed)
+        common_phrases = [word for word, freq in word_freq.most_common(5)]
+
+        # Construct a sentence using the most common phrases
+        generated_sentence = f"Customers are saying {', '.join(common_phrases)}."
+        
+        logger.error(f"Generated Sentence: {generated_sentence}")
+
+        # Improve the sentence using Groq
+        try:
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.groq_api_key}',
+            }
+            payload = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": f"Improve the following sentence to make it more readable and polished with only answer and only display revised version sentence: '{generated_sentence}'"
+                    }
+                ],
+                "model": "llama3-8b-8192"
+            }
+
+            response = requests.post(self.groq_api_url, json=payload, headers=headers)
+            response.raise_for_status()  # Raise error for non-successful response
+            
+            # Log the entire response for debugging
+            logger.error(f"Groq API response: {response.json()}")
+
+            # Extract the improved sentence from the response
+            response_json = response.json()
+            if 'choices' in response_json and len(response_json['choices']) > 0 and 'message' in response_json['choices'][0]:
+                improved_sentence = response_json['choices'][0]['message']['content'].strip()
+            else:
+                logger.error("Unexpected response format from Groq API")
+                improved_sentence = generated_sentence
+
+            return improved_sentence
+        except requests.exceptions.HTTPError as http_err:
+            logger.error(f"HTTP error occurred: {http_err}")
+            return generated_sentence
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error calling Groq API: {str(e)}")
+            return generated_sentence
+        except Exception as e:
+            logger.error(f"Other error occurred: {str(e)}")
+            return generated_sentence
+
+    def get(self, request, product_id):
+        try:
+            sentence = self.summarize_reviews()
+            return Response({'summary': sentence}, status=200)
+        except Exception as e:
+            logger.error(f"Error summarizing reviews for product_id {product_id}: {str(e)}")
+            return Response({'error': 'Internal Server Error'}, status=500)
 class SearchProductsAPIView(generics.ListAPIView):
     serializer_class = ProductSerializer
     permission_classes = (AllowAny,)
